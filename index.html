@@ -85,9 +85,9 @@
 
     /* Quick Tasks Grid */
     .chore-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; margin-bottom: 1rem; }
-    .chore-btn { background-color: var(--card-bg); border: 2px solid var(--border-color); color: var(--text-color); border-radius: 10px; padding: 0.75rem 0.5rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.2s ease; }
+    .chore-btn { background-color: var(--card-bg); border: 2px solid var(--border-color); color: var(--text-color); border-radius: 10px; padding: 0.75rem 0.5rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.2s ease; position: relative; }
     .chore-btn:hover, .chore-btn:focus { border-color: var(--primary-color); transform: scale(1.05); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); outline: none; }
-    .chore-icon { font-size: 1.8rem; margin-bottom: 0.25rem; }
+    .chore-icon { font-size: 1.8rem; margin-bottom: 0.25rem; display: flex; align-items: center; justify-content: center; height: 40px; }
     .chore-name { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.25rem; }
     .chore-value { font-size: 0.85rem; color: #10b981; font-weight: bold; }
 
@@ -120,7 +120,7 @@
 <body>
 
 <div class="container">
-  <div class="header-title"><span style="display:inline-block; filter: grayscale(100%) brightness(15%) drop-shadow(0px 0px 2px rgba(255,255,255,0.4));">🐕</span> Joy's Robux Tracker</div>
+  <div class="header-title"><span style="display:inline-block; filter: grayscale(100%) brightness(15%) drop-shadow(0px 0px 2px rgba(255,255,255,0.4));">🐶</span> Joy's Robux Tracker</div>
 
   <!-- Theme Panel -->
   <div class="theme-panel">
@@ -132,6 +132,10 @@
       <button class="theme-btn" onclick="triggerPhotoUpload()">Photo / Camera</button>
     </div>
     <input type="file" id="photoInput" accept="image/*" capture="environment" onchange="handlePhotoUpload(event)">
+    
+    <!-- Hidden input specifically for Cola's photo -->
+    <input type="file" id="colaPhotoInput" accept="image/*" capture="environment" onchange="handleColaPhotoUpload(event)">
+
     <div class="custom-controls" id="customControls">
       <div class="control-row">
         <label style="margin:0;">Pick Base Color:</label>
@@ -153,11 +157,8 @@
 
   <!-- Goals Section -->
   <div class="goals-card">
-    <h3 class="goals-header"> My Goals</h3>
-    <div id="goalsContainer">
-      <!-- Goals injected here by JS -->
-    </div>
-    
+    <h3 class="goals-header">🎯 My Wishlist Goals</h3>
+    <div id="goalsContainer"></div>
     <div class="goal-actions">
       <input type="text" id="newGoalName" class="goal-input" placeholder="What are you saving for? (e.g. Pet)" />
       <input type="number" id="newGoalAmount" class="goal-amount" placeholder="Robux needed" />
@@ -249,24 +250,66 @@
   // --- PRE-PROGRAMMED CHORES ---
   const chores = [
     { name: "Haircut", amount: 100, icon: "✂️" },
-    // Notice the CSS filter added to the icon below to turn it into a Black Lab!
-    { name: "Feed Cola", amount: 20, icon: "<span style='display:inline-block; filter: grayscale(100%) brightness(15%) drop-shadow(0px 0px 2px rgba(255,255,255,0.4));'>🐕</span>" },
+    { name: "Feed Cola", amount: 20, icon: "" }, // Icon generated dynamically
     { name: "Clean Room", amount: 50, icon: "🧹" },
     { name: "Do Dishes", amount: 40, icon: "🍽️" },
     { name: "Take Out Trash", amount: 30, icon: "🗑️" },
     { name: "Good Grades", amount: 80, icon: "A+" }
   ];
 
-  function renderChores() {
+  window.renderChores = function() {
     const grid = document.getElementById("choreGrid");
-    grid.innerHTML = chores.map(chore => `
-      <button type="button" class="chore-btn" onclick="selectChore('${chore.name}', ${chore.amount})">
-        <div class="chore-icon">${chore.icon}</div>
-        <div class="chore-name">${chore.name}</div>
-        <div class="chore-value">+${chore.amount} R$</div>
-      </button>
-    `).join('');
+    const savedColaPhoto = localStorage.getItem("joy_cola_photo");
+
+    grid.innerHTML = chores.map(chore => {
+      // Special setup for Cola's chore icon
+      if (chore.name === "Feed Cola") {
+        let colaIconHtml = `<span style='display:inline-block; filter: grayscale(100%) brightness(15%) drop-shadow(0px 0px 2px rgba(255,255,255,0.4)); font-size: 1.8rem;'>🐶</span>`;
+        if (savedColaPhoto) {
+          colaIconHtml = `<img src="${savedColaPhoto}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`;
+        }
+
+        return `
+          <button type="button" class="chore-btn" onclick="selectChore('${chore.name}', ${chore.amount})">
+            <div style="position: relative; margin-bottom: 0.25rem; display: flex; align-items: center; justify-content: center; height: 40px;">
+              ${colaIconHtml}
+              <!-- Tiny camera button to upload a real photo! -->
+              <div onclick="triggerColaUpload(event)" style="position: absolute; bottom: -8px; right: -12px; background: var(--card-bg); border-radius: 50%; padding: 3px; font-size: 0.75rem; cursor: pointer; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.1);">📸</div>
+            </div>
+            <div class="chore-name">${chore.name}</div>
+            <div class="chore-value">+${chore.amount} R$</div>
+          </button>
+        `;
+      }
+
+      // Standard chores
+      return `
+        <button type="button" class="chore-btn" onclick="selectChore('${chore.name}', ${chore.amount})">
+          <div class="chore-icon">${chore.icon}</div>
+          <div class="chore-name">${chore.name}</div>
+          <div class="chore-value">+${chore.amount} R$</div>
+        </button>
+      `;
+    }).join('');
   }
+
+  // --- COLA PHOTO UPLOAD LOGIC ---
+  window.triggerColaUpload = function(event) {
+    event.stopPropagation(); // Stops the button from adding Robux when you just want to change the photo
+    document.getElementById("colaPhotoInput").click();
+  };
+
+  window.handleColaPhotoUpload = function(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        localStorage.setItem("joy_cola_photo", e.target.result);
+        window.renderChores(); // Instantly updates the button with his real face!
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   window.selectChore = function(name, amount) {
     document.getElementById("source").value = name;
@@ -530,7 +573,7 @@
     document.getElementById("entryDate").value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
   };
 
-  renderChores();
+  window.renderChores();
   window.setTodayDate();
   loadSavedTheme();
 </script>
