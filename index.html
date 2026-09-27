@@ -4,11 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Joy's Robux Tracker</title>
-  <!-- Confetti Script -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     :root {
-      --primary-color: rgb(0, 112, 205); /* Custom Vibrant Blue */
+      --primary-color: rgb(0, 112, 205);
       --bg-color: #f4f6f9;
       --card-bg: #ffffff;
       --text-color: #1f2937;
@@ -47,7 +46,7 @@
     }
 
     /* Cards */
-    .theme-panel, .stat-card, .form-group, .log-list {
+    .theme-panel, .stat-card, .goals-card, .form-group, .log-list {
       background-color: var(--card-bg);
       padding: 1.5rem;
       border-radius: 12px;
@@ -56,141 +55,62 @@
     }
 
     /* Theme Controls */
-    .theme-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-    }
-
-    .theme-btn {
-      padding: 0.5rem 0.8rem;
-      font-size: 0.85rem;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      background-color: var(--card-bg);
-      color: var(--text-color);
-      cursor: pointer;
-      font-weight: 600;
-    }
+    .theme-buttons { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .theme-btn { padding: 0.5rem 0.8rem; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--card-bg); color: var(--text-color); cursor: pointer; font-weight: 600; }
+    .theme-btn:hover { opacity: 0.8; }
     
-    .custom-controls {
-      display: none;
-      margin-top: 1rem;
-      padding-top: 0.75rem;
-      border-top: 1px solid var(--border-color);
-      flex-direction: column;
-      gap: 0.75rem;
-    }
+    .custom-controls { display: none; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color); flex-direction: column; gap: 0.75rem; }
     .custom-controls.active { display: flex; }
     .control-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; }
 
-    /* Goal Progress Bar */
-    .goal-container {
-      margin-top: 1rem;
-      text-align: left;
-    }
-    .goal-header {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.9rem;
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-    }
-    .progress-track {
-      width: 100%;
-      height: 20px;
-      background-color: var(--border-color);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background-color: var(--primary-color);
-      width: 0%;
-      transition: width 0.5s ease;
-    }
-
     /* Stats */
     .stat-card { text-align: center; }
-    .stat-number { font-size: 3rem; font-weight: bold; color: var(--primary-color); margin: 0.5rem 0; }
-    .usd-estimate { font-size: 1.1rem; color: #6b7280; font-weight: 600; }
+    .stat-number { font-size: 3.5rem; font-weight: bold; color: var(--primary-color); margin: 0.5rem 0; }
+    .usd-estimate { font-size: 1.2rem; color: #6b7280; font-weight: 600; }
+
+    /* Goals Section */
+    .goals-header { margin-top: 0; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;}
+    .goal-item { margin-bottom: 1.25rem; }
+    .goal-item:last-child { margin-bottom: 0; }
+    .goal-info { display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.95rem; }
+    .goal-numbers { color: var(--primary-color); }
+    .progress-track { width: 100%; height: 20px; background-color: var(--border-color); border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background-color: var(--primary-color); width: 0%; transition: width 0.5s ease; }
+    
+    .goal-actions { display: flex; gap: 10px; margin-top: 1rem; }
+    .goal-input { flex: 2; padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--input-bg); color: var(--text-color); }
+    .goal-amount { flex: 1; padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--input-bg); color: var(--text-color); }
+    
+    .btn-delete-goal { background: transparent; border: none; color: #dc2626; cursor: pointer; font-size: 0.85rem; text-decoration: underline; padding: 0; margin-left: 10px;}
 
     /* Quick Tasks Grid */
-    .chore-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-      gap: 12px;
-      margin-bottom: 1rem;
-    }
-
-    .chore-btn {
-      background-color: var(--card-bg);
-      border: 2px solid var(--border-color);
-      color: var(--text-color);
-      border-radius: 10px;
-      padding: 0.75rem 0.5rem;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-    }
-
-    .chore-btn:hover, .chore-btn:focus {
-      border-color: var(--primary-color);
-      transform: scale(1.05);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-      outline: none;
-    }
-
+    .chore-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; margin-bottom: 1rem; }
+    .chore-btn { background-color: var(--card-bg); border: 2px solid var(--border-color); color: var(--text-color); border-radius: 10px; padding: 0.75rem 0.5rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.2s ease; }
+    .chore-btn:hover, .chore-btn:focus { border-color: var(--primary-color); transform: scale(1.05); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); outline: none; }
     .chore-icon { font-size: 1.8rem; margin-bottom: 0.25rem; }
     .chore-name { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.25rem; }
     .chore-value { font-size: 0.85rem; color: #10b981; font-weight: bold; }
 
     /* Form Inputs */
     label { font-weight: 600; font-size: 0.9rem; display: block; margin-top: 1rem; }
-    input {
-      width: 100%; padding: 0.75rem; margin-top: 0.25rem; border: 1px solid var(--border-color);
-      border-radius: 8px; box-sizing: border-box; font-size: 1rem; background-color: var(--input-bg); color: var(--text-color);
-    }
+    input[type="number"], input[type="text"], input[type="date"] { width: 100%; padding: 0.75rem; margin-top: 0.25rem; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-size: 1rem; background-color: var(--input-bg); color: var(--text-color); }
     .date-row { display: flex; gap: 8px; align-items: center; }
     
-    .btn-submit {
-      width: 100%; padding: 0.85rem; background-color: var(--primary-color); color: white;
-      border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 1.25rem;
-      box-shadow: 0 4px 6px rgba(0, 112, 205, 0.3);
-    }
+    .btn-submit { width: 100%; padding: 0.85rem; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 1.25rem; box-shadow: 0 4px 6px rgba(0, 112, 205, 0.3); }
     .btn-submit:hover { opacity: 0.9; transform: translateY(-1px); }
 
     /* Structured Table Layouts */
-    table {
-      width: 100%; border-collapse: collapse; margin-top: 1rem;
-    }
-    th, td {
-      padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border-color);
-    }
-    th {
-      background-color: var(--table-header-bg); font-weight: bold; color: var(--text-color); font-size: 0.9rem;
-    }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+    th { background-color: var(--table-header-bg); font-weight: bold; color: var(--text-color); font-size: 0.9rem; }
     td { font-size: 0.95rem; }
     .val-col { text-align: right; font-weight: bold; color: #10b981; }
 
     /* Vault & Cash Out Buttons */
-    .btn-cashout {
-      width: 100%; padding: 0.75rem; background-color: #10b981; color: white; border: none;
-      border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem;
-    }
+    .btn-cashout { width: 100%; padding: 0.75rem; background-color: #10b981; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
     .btn-cashout:hover { background-color: #059669; }
-
-    .vault-toggle {
-      width: 100%; padding: 0.75rem; background-color: transparent; color: var(--primary-color);
-      border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1rem; font-weight: bold;
-      cursor: pointer; margin-top: 1rem;
-    }
+    .vault-toggle { width: 100%; padding: 0.75rem; background-color: transparent; color: var(--primary-color); border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 1rem; }
     .vault-toggle:hover { background-color: var(--primary-color); color: white; }
-
     .vault-section { display: none; margin-top: 1.5rem; }
     .vault-section.open { display: block; }
     
@@ -224,24 +144,24 @@
     </div>
   </div>
 
-  <!-- Dashboard Stats -->
+  <!-- Dashboard Stats (Simplified) -->
   <div class="stat-card">
-    <div>Current Active Balance</div>
+    <div>Overall Active Balance</div>
     <div class="stat-number" id="totalRobux">0 R$</div>
     <div class="usd-estimate" id="usdEstimate">$0.00 ($1 = 80 R$)</div>
+  </div>
 
-    <div class="goal-container">
-      <div class="goal-header">
-        <span>Progress to Goal:</span>
-        <span id="goalText">0 / 1000 R$</span>
-      </div>
-      <div class="progress-track">
-        <div class="progress-fill" id="progressBar"></div>
-      </div>
-      <div class="date-row" style="margin-top:10px;">
-        <input type="number" id="goalInput" placeholder="Set new goal..." style="margin:0;" />
-        <button class="theme-btn" onclick="setGoal()" style="padding:0.75rem;">Set</button>
-      </div>
+  <!-- New Goals Section -->
+  <div class="goals-card">
+    <h3 class="goals-header">🎯 My Wishlist Goals</h3>
+    <div id="goalsContainer">
+      <!-- Goals injected here by JS -->
+    </div>
+    
+    <div class="goal-actions">
+      <input type="text" id="newGoalName" class="goal-input" placeholder="What are you saving for? (e.g. Pet)" />
+      <input type="number" id="newGoalAmount" class="goal-amount" placeholder="Robux needed" />
+      <button class="theme-btn" onclick="addNewGoal()">Add</button>
     </div>
   </div>
 
@@ -303,7 +223,7 @@
 <!-- Firebase Modular SDK Script -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-  import { getDatabase, ref, push, update, onValue } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+  import { getDatabase, ref, push, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAYSN3cqmzclEZp0FHzkACmbikyC6tROnU",
@@ -317,11 +237,15 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
+  
+  // Database references for Joy (Remember to use 'robux_entries' and 'robux_goals' for Jack's site!)
   const entriesRef = ref(db, 'joy_robux_entries'); 
+  const goalsRef = ref(db, 'joy_robux_goals');
 
   let activeEntries = [];
   let vaultEntries = [];
-  let currentGoal = localStorage.getItem("joy_robux_goal") || 1000;
+  let userGoals = [];
+  let currentActiveBalance = 0;
 
   // --- PRE-PROGRAMMED CHORES ---
   const chores = [
@@ -350,7 +274,7 @@
     document.getElementById("amount").focus();
   };
 
-  // --- FIREBASE SYNC & TABLES ---
+  // --- FIREBASE SYNC: ENTRIES ---
   onValue(entriesRef, (snapshot) => {
     const data = snapshot.val();
     activeEntries = [];
@@ -367,6 +291,18 @@
       }
     }
     updateDashboard();
+  });
+
+  // --- FIREBASE SYNC: GOALS ---
+  onValue(goalsRef, (snapshot) => {
+    const data = snapshot.val();
+    userGoals = [];
+    if (data) {
+      for (let id in data) {
+        userGoals.push({ id, ...data[id] });
+      }
+    }
+    renderGoals();
   });
 
   function formatDisplayDate(dateString) {
@@ -391,21 +327,66 @@
   }
 
   function updateDashboard() {
-    const activeTotal = activeEntries.reduce((sum, item) => sum + item.amount, 0);
-    document.getElementById("totalRobux").innerText = activeTotal.toLocaleString() + " R$";
-    document.getElementById("usdEstimate").innerText = `$${(activeTotal / 80).toFixed(2)} USD ($1 = 80 R$)`;
+    currentActiveBalance = activeEntries.reduce((sum, item) => sum + item.amount, 0);
+    document.getElementById("totalRobux").innerText = currentActiveBalance.toLocaleString() + " R$";
+    document.getElementById("usdEstimate").innerText = `$${(currentActiveBalance / 80).toFixed(2)} USD ($1 = 80 R$)`;
 
-    // Update Progress Bar
-    document.getElementById("goalInput").placeholder = `Goal: ${currentGoal}`;
-    document.getElementById("goalText").innerText = `${activeTotal.toLocaleString()} / ${parseInt(currentGoal).toLocaleString()} R$`;
-    const percent = Math.min(100, (activeTotal / currentGoal) * 100);
-    document.getElementById("progressBar").style.width = percent + "%";
-
-    // Update Tables
     renderTable(activeEntries, "activeTableBody");
     renderTable(vaultEntries, "vaultTableBody");
+    renderGoals(); // Re-render goals to update progress bars with new balance
   }
 
+  // --- GOALS LOGIC ---
+  window.addNewGoal = function() {
+    const name = document.getElementById("newGoalName").value.trim();
+    const amount = parseInt(document.getElementById("newGoalAmount").value);
+    
+    if (!name || !amount || amount <= 0) return;
+
+    push(goalsRef, { name, targetAmount: amount });
+    
+    document.getElementById("newGoalName").value = "";
+    document.getElementById("newGoalAmount").value = "";
+  };
+
+  window.deleteGoal = function(goalId) {
+    if(confirm("Remove this goal?")) {
+      remove(ref(db, `joy_robux_goals/${goalId}`));
+    }
+  };
+
+  function renderGoals() {
+    const container = document.getElementById("goalsContainer");
+    if (userGoals.length === 0) {
+      container.innerHTML = `<p style="font-size:0.9rem; color:#6b7280; margin-top:0;">No goals added yet. Add one below!</p>`;
+      return;
+    }
+
+    container.innerHTML = userGoals.map(goal => {
+      // Prevent the progress bar from going over 100% visually
+      const percent = Math.min(100, (currentActiveBalance / goal.targetAmount) * 100);
+      const isComplete = currentActiveBalance >= goal.targetAmount;
+      
+      return `
+        <div class="goal-item">
+          <div class="goal-info">
+            <span>
+              ${isComplete ? '🌟' : ''} <span class="goal-name">${goal.name}</span>
+            </span>
+            <span class="goal-numbers">
+              ${currentActiveBalance.toLocaleString()} / ${goal.targetAmount.toLocaleString()} R$ 
+              <button class="btn-delete-goal" onclick="deleteGoal('${goal.id}')">Remove</button>
+            </span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width: ${percent}%; background-color: ${isComplete ? '#10b981' : 'var(--primary-color)'};"></div>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  // --- ENTRY SUBMISSION ---
   window.addEntry = function() {
     const amount = parseInt(document.getElementById("amount").value);
     if (!amount || amount <= 0) return;
@@ -415,18 +396,16 @@
       source: document.getElementById("source").value.trim() || "Robux Earnings",
       date: document.getElementById("entryDate").value,
       timestamp: Date.now(),
-      cashedOut: false // New field for the Vault system!
+      cashedOut: false 
     });
 
     document.getElementById("amount").value = "";
     document.getElementById("source").value = "";
     window.setTodayDate();
 
-    // Trigger Confetti!
     confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#0070cd', '#10b981', '#ffffff'] });
   };
 
-  // --- THE VAULT / CASH OUT ---
   window.cashOut = function() {
     if (activeEntries.length === 0) {
       alert("No active Robux to cash out right now!");
@@ -438,22 +417,12 @@
         updates[entry.id + '/cashedOut'] = true;
       });
       update(entriesRef, updates);
-      confetti({ particleCount: 300, spread: 100, origin: { y: 0.5 }, colors: ['#10b981', '#f59e0b'] }); // Money colors!
+      confetti({ particleCount: 300, spread: 100, origin: { y: 0.5 }, colors: ['#10b981', '#f59e0b'] }); 
     }
   };
 
   window.toggleVault = function() {
     document.getElementById("vaultSection").classList.toggle("open");
-  };
-
-  window.setGoal = function() {
-    const input = document.getElementById("goalInput").value;
-    if (input && parseInt(input) > 0) {
-      currentGoal = parseInt(input);
-      localStorage.setItem("joy_robux_goal", currentGoal);
-      document.getElementById("goalInput").value = "";
-      updateDashboard();
-    }
   };
 
   // --- THEME SYSTEM ---
@@ -463,7 +432,6 @@
     document.getElementById("customControls").classList.remove("active");
     localStorage.setItem("joy_saved_theme", type);
     
-    // Adjusted header backgrounds to support the new tables
     if (type === 'light') {
       document.documentElement.style.setProperty('--bg-color', '#f4f6f9');
       document.documentElement.style.setProperty('--card-bg', '#ffffff');
@@ -501,6 +469,7 @@
     localStorage.setItem("joy_saved_theme", "custom");
     localStorage.setItem("joy_custom_hex", hex);
     localStorage.setItem("joy_custom_brightness", brightness);
+    
     const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
     const factor = brightness / 50; 
     document.documentElement.style.setProperty('--bg-color', `rgb(${Math.min(255, Math.floor(r*factor))}, ${Math.min(255, Math.floor(g*factor))}, ${Math.min(255, Math.floor(b*factor))})`);
